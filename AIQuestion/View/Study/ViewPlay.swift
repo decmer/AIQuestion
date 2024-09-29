@@ -69,6 +69,17 @@ struct ViewPlay: View {
                         await vm.answerdLogic.prepareCache(answers: answers)
                     }
                     answer = vm.answerdLogic.nextQuestion()
+                    if let answer = answer {
+                        if (answer.answer >= answer.answers.count) {
+                            withAnimation {
+                                isRevised = true
+                                isAnswered = true
+                            }
+                        } else {
+                            isRevised = false
+                        }
+                    }
+                    print(isRevised)
                 }
             }
         }
