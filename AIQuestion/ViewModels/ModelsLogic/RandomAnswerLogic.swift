@@ -22,7 +22,7 @@ final class RandomQuestLogic {
     func prepareCache(answers: [Answers]) async {
         reserveQuestions = answers
         var diccionarioPreguntaValor = [Answers:Double]()
-        let numerovaloresCache: Int = answers.count / 100 * intoleranceReplica
+        let numerovaloresCache: Int = max(answers.count / 100 * intoleranceReplica, 1)
         answers.prefix(numerovaloresCache).forEach { answer in
             let x = Double(answer.learningLevel)
             let y = answer.lastTimeAsked.timeIntervalSince(Date())
@@ -55,7 +55,7 @@ final class RandomQuestLogic {
                 }
                 if let cacheAux = cacheAux {
                     let segureQuestionRandom = reserveQuestions.filter { pregunta in
-                        pregunta != cacheAux
+                        pregunta.id != cacheAux.id
                     }
                     self.cacheAux = segureQuestionRandom[Int.random(in: 0 ..< segureQuestionRandom.count)]
                     return self.cacheAux!
@@ -63,8 +63,17 @@ final class RandomQuestLogic {
                 return reserveQuestions[Int.random(in: 0 ..< reserveQuestions.count)]
             }
         }
-        cacheAux = cache.first
-        return cache.removeFirst()
+        let spontaneousCache = cache.removeFirst()
+        if cacheAux?.id == spontaneousCache.id {
+            let id = cacheAux?.id
+            let segureQuestionRandom = reserveQuestions.filter { pregunta in
+                pregunta.id != id
+            }
+            self.cacheAux = segureQuestionRandom[Int.random(in: 0 ..< segureQuestionRandom.count)]
+            return self.cacheAux!
+        }
+        cacheAux = spontaneousCache
+        return cacheAux!
     }
     
     

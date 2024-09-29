@@ -15,15 +15,24 @@ struct ViewPlay: View {
     @State var answer: Answers?
     @State var answers: [Answers]?
     @State var isAnswered: Bool = false
+    @State var isRevised: Bool = true
+
     var book: Books?
     var books: [Books]?
     
     var body: some View {
         NavigationStack {
             VStack {
+                if isRevised {
+                    revisedAnswers
+                        .padding(.horizontal, 37)
+                        .padding(.vertical, 10)
+                        .frame(height: 160)
+                }
                 Spacer()
                 if answers != nil, let answer = answer {
                     ask(answer: answer)
+                        
                     Spacer()
                     if isAnswered {
                         HStack {
@@ -32,6 +41,18 @@ struct ViewPlay: View {
                                 self.answer = vm.answerdLogic.nextQuestion()
                                 withAnimation {
                                     isAnswered = false
+                                }
+                                if let answer = self.answer {
+                                    if (answer.answer >= answer.answers.count) {
+                                        withAnimation {
+                                            isRevised = true
+                                            isAnswered = true
+                                        }
+                                    } else {
+                                        withAnimation {
+                                            isRevised = false
+                                        }
+                                    }
                                 }
                             } label: {
                                 Text("next")
@@ -65,7 +86,6 @@ struct ViewPlay: View {
                         answers = await vm.answerdLogic.joinQuest(books: books)
                     }
                     if let answers = answers {
-                        print(answers.count)
                         await vm.answerdLogic.prepareCache(answers: answers)
                     }
                     answer = vm.answerdLogic.nextQuestion()
@@ -90,14 +110,21 @@ struct ViewPlay: View {
             Text(answer.title)
                 .font(.title)
             VStack {
-                ForEach(answer.answers, id: \.self) { item in
-                    itemAnswer(item.str, isCorrect: item.str == answer.answers[answer.answer].str)
-                        .padding()
-                        .onTapGesture {
-                            withAnimation {
-                                isAnswered = true
+                if isRevised {
+                    ForEach(answer.answers, id: \.self) { item in
+                        itemAnswer(item.str)
+                            .padding()
+                    }
+                } else {
+                    ForEach(answer.answers, id: \.self) { item in
+                        itemAnswer(item.str, isCorrect: item.str == answer.answers[answer.answer].str)
+                            .padding()
+                            .onTapGesture {
+                                withAnimation {
+                                    isAnswered = true
+                                }
                             }
-                        }
+                    }
                 }
             }
         }
@@ -106,14 +133,34 @@ struct ViewPlay: View {
     func itemAnswer(_ text: String, isCorrect: Bool = false) -> some View {
         HStack {
             Spacer()
-                Text(text)
-                    .font(.body)
-                    .padding(10)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(isAnswered ? isCorrect ? Color.green.opacity(0.5) : Color.red.opacity(0.5) : Color.primary.opacity(0.2))
-                    )
+            Text(text)
+                .font(.body)
+                .padding(10)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(
+                            isRevised
+                                ? Color.primary.opacity(0.2)
+                                : (isAnswered
+                                    ? (isCorrect ? Color.green.opacity(0.5) : Color.red.opacity(0.5))
+                                    : Color.primary.opacity(0.2)
+                                  )
+                        )
+                )
             Spacer()
+        }
+    }
+    
+    var revisedAnswers: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 20)
+                .foregroundStyle(Color.yellow.opacity(0.3))
+            VStack {
+                Spacer()
+                Text("The current question has a contradictory error, since the correct question is not any of the possible ones, please review it.")
+                    .padding()
+                Spacer()
+            }
         }
     }
 }
