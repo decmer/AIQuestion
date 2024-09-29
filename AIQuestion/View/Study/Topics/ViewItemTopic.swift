@@ -113,6 +113,9 @@ struct ViewItemTopic: View {
             isSelected = newValue
         }
         .onChange(of: isEdit) { oldValue, newValue in
+            isEdit = newValue
+        }
+        .onChange(of: isEdit) { oldValue, newValue in
             if !newValue {
                 isSelected = newValue
             }
