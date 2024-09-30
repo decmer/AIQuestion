@@ -86,7 +86,9 @@ struct ViewListAnswer: View {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
                 vm.deleteAll(selected)
-                answers = topic.answers
+                if let ans = topic.answers {
+                    answers = ans
+                }
                 isEdit = false
             }
         } message: {
@@ -111,7 +113,9 @@ struct ViewListAnswer: View {
                     Task {
                         await vm.processImportJSON.processAnswerdsJSON(desde: url, topic: topic) { answer in
                             answers.append(answer)
-                            answers = topic.answers
+                            if let ans = topic.answers {
+                                answers = ans
+                            }
                         }
                     }
                 }

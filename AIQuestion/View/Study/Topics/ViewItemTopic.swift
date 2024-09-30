@@ -46,7 +46,7 @@ struct ViewItemTopic: View {
                 }
             }
             ZStack {
-                NavigationLink(destination: ViewListAnswer(topic: topic, answers: topic.answers)) {
+                NavigationLink(destination: ViewListAnswer(topic: topic, answers: topic.answers!)) {
                     RoundedRectangle(cornerRadius: 24)
                         .fill(.itemsColors)
                 }

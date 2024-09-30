@@ -45,7 +45,11 @@ final class ViewModel {
     }
     
     func addItem(item: Topics, book: Books) {
-        book.topics.append(item)
+        if book.topics != nil {
+            book.topics!.append(item)
+        } else {
+            print("Error in addItem")
+        }
         do {
             try context.save()
         } catch {
@@ -54,7 +58,11 @@ final class ViewModel {
     }
     
     func addItem(item: Answers, topic: Topics) {
-        topic.answers.append(item)
+        if topic.answers != nil {
+            topic.answers!.append(item)
+        } else {
+            print("Error in addItem")
+        }
         do {
             try context.save()
         } catch {
@@ -87,8 +95,10 @@ final class ViewModel {
     
     func delete(_ item: Topics) {
         if let book = item.book {
-            book.topics.removeAll { topic in
-                topic.id == item.id
+            if var topics = book.topics {
+                topics.removeAll { topic in
+                    topic.id == item.id
+                }
             }
         }
     }
@@ -105,9 +115,9 @@ final class ViewModel {
     }
     
     func delete(_ item: Answers) {
-        if let topic = item.topic {
-            topic.answers.removeAll { answer in
-                answer == item
+        if var answer = item.answers {
+            answer.removeAll { answer in
+                answer.id == item.id
             }
         }
     }

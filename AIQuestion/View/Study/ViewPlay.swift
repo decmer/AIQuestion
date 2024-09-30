@@ -42,8 +42,8 @@ struct ViewPlay: View {
                                 withAnimation {
                                     isAnswered = false
                                 }
-                                if let answer = self.answer {
-                                    if (answer.answer >= answer.answers.count) {
+                                if let answer = self.answer, let answers = answer.answers {
+                                    if (answer.answer >= answers.count) {
                                         withAnimation {
                                             isRevised = true
                                             isAnswered = true
@@ -89,8 +89,8 @@ struct ViewPlay: View {
                         await vm.answerdLogic.prepareCache(answers: answers)
                     }
                     answer = vm.answerdLogic.nextQuestion()
-                    if let answer = answer {
-                        if (answer.answer >= answer.answers.count) {
+                    if let answer = answer, let answers = answer.answers {
+                        if (answer.answer >= answers.count) {
                             withAnimation {
                                 isRevised = true
                                 isAnswered = true
@@ -110,14 +110,14 @@ struct ViewPlay: View {
             Text(answer.title)
                 .font(.title)
             VStack {
-                if isRevised {
-                    ForEach(answer.answers, id: \.self) { item in
+                if isRevised, let answers = answer.answers {
+                    ForEach(answers, id: \.self) { item in
                         itemAnswer(item.str)
                             .padding()
                     }
-                } else {
-                    ForEach(answer.answers, id: \.self) { item in
-                        itemAnswer(item.str, isCorrect: item.str == answer.answers[answer.answer].str)
+                } else if let answers = answer.answers {
+                    ForEach(answers, id: \.self) { item in
+                        itemAnswer(item.str, isCorrect: item.str == answers[answer.answer].str)
                             .padding()
                             .onTapGesture {
                                 withAnimation {

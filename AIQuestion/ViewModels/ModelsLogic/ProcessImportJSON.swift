@@ -107,6 +107,8 @@ final class ProcessImportJSON {
     }
     
     func addItems(_ items: [TopicDTO], book: Books, action: @escaping (Topics) -> Void) async {
+        guard var topics = book.topics else { return }
+        
         let customConcurrentQueue = DispatchQueue(label: "com.AiQuestion.concurrentQueueTopics", qos: .utility, attributes: .concurrent)
 
         let numQueue =  min(items.count, 10)
@@ -117,7 +119,7 @@ final class ProcessImportJSON {
                 for item in listAux {
                     let answer = JSONToSwiftData(item)
                     self.context.insert(answer)
-                    book.topics.append(answer)
+                    topics.append(answer)
                     action(answer)
                 }
             }
@@ -130,6 +132,8 @@ final class ProcessImportJSON {
     }
     
     func addItems(_ items: [AnswerDTO], topic: Topics, action: @escaping (Answers) -> Void) async {
+        guard var answers = topic.answers else { return }
+        
         let customConcurrentQueue = DispatchQueue(label: "com.AiQuestion.concurrentQueueAnswer", qos: .utility, attributes: .concurrent)
         
         let numQueue = min(items.count, 10)
@@ -140,7 +144,7 @@ final class ProcessImportJSON {
                 for item in listAux {
                     let answer = JSONToSwiftData(item)
                     context.insert(answer)
-                    topic.answers.append(answer)
+                    answers.append(answer)
                     action(answer)
                 }
             }

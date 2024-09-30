@@ -95,9 +95,12 @@ final class RandomQuestLogic {
     func joinQuest(books: [Books]) async -> [Answers]{
         var answers = [Answers]()
         books.forEach { book in
-            let topics = book.topics
-            topics.forEach { topic in
-                answers.append(contentsOf: topic.answers)
+            if let topics = book.topics {
+                topics.forEach { topic in
+                    if let answersAux = topic.answers {
+                        answers.append(contentsOf: answersAux)
+                    }
+                }
             }
         }
         
@@ -106,11 +109,13 @@ final class RandomQuestLogic {
     
     func joinQuest(book: Books) async -> [Answers] {
         var questions = [Answers]()
-        let topic = book.topics
-        topic.forEach { tema in
-            questions.append(contentsOf: tema.answers)
+        if let topic = book.topics {
+            topic.forEach { tema in
+                if let answersAux = tema.answers {
+                    questions.append(contentsOf: answersAux)
+                }
+            }
         }
-        
         return questions
     }
 }

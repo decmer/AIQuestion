@@ -27,7 +27,7 @@ struct IAQuestionApp: App {
             Answers.self,
             StrAnswer.self
         ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let modelConfiguration = ModelConfiguration(cloudKitDatabase: ModelConfiguration.CloudKitDatabase.private("iCloud.bbdd"))
 
         do {
             sharedModelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])

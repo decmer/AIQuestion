@@ -68,7 +68,9 @@ struct NavigationButtonsList<Item>: ToolbarContent {
                         }
                     }
                 } else {
-                    isPlay = true
+                    if !items.isEmpty {
+                        isPlay = true
+                    }
                 }
             } label: {
                 Image(systemName: isEdit ? "square.stack.3d.down.right.fill" : "play")

@@ -10,14 +10,14 @@ import SwiftData
 
 @Model
 final class Topics {
-    @Attribute(.unique) var id: UUID
-    @Attribute(.spotlight) var title: String
-    var book: Books?
-    @Relationship(deleteRule: .cascade, inverse: \Answers.topic) var answers: [Answers]
-    var dateCreate: Date
-    var lastTimeAsked: Date
-    var note: String?
-    var isFavorite: Bool
+    var id: UUID = UUID()
+    @Attribute(.spotlight) var title: String = ""
+    var book: Books? = nil
+    @Relationship(deleteRule: .cascade, inverse: \Answers.topic) var answers: [Answers]? = nil
+    var dateCreate: Date = Date()
+    var lastTimeAsked: Date = Date()
+    var note: String? = nil
+    var isFavorite: Bool = false
     
     init(id: UUID, title: String, book: Books? = nil, answers: [Answers], dateCreate: Date, lastTimeAsked: Date, note: String? = nil, isFavorite: Bool = false) {
         self.id = id

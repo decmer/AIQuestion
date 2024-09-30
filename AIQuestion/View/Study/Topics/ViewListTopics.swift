@@ -88,7 +88,9 @@ struct ViewListTopics: View {
                 print("Borrando")
                 DispatchQueue.customConcurrentQueue.async {
                     vm.deleteAll(selected)
-                    topics = book.topics
+                    if let tops = book.topics {
+                        topics = tops
+                    }
                     isEdit = false
                 }
             }
@@ -113,8 +115,10 @@ struct ViewListTopics: View {
                 if let url = urls.first {
                     Task {
                         await vm.processImportJSON.processTopicsJSON(desde: url, book: book) { topic in
-                            book.topics.append(topic)
-                            topics = book.topics
+                            if let tops = book.topics {
+                                topics.append(topic)
+                                topics = tops
+                            }
                         }
                     }
                 }
@@ -137,7 +141,9 @@ struct ViewListTopics: View {
                     }
                 }
             .onAppear {
-                topics = book.topics
+                if let tops = book.topics {
+                    topics = tops
+                }
             }
     }
     
