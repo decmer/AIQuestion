@@ -11,11 +11,29 @@ struct ViewCreateTopic: View {
     @Environment(ViewModel.self) var vm
     
     @Binding var isPresent: Bool
-    @State var title = ""
-    @State var note = ""
+    @State var title: String
+    @State var note: String
     let book: Books
+    var topic: Topics?
     
-    var action: (Topics) -> Void
+    var action: () -> Void
+    
+    init(isPresent: Binding<Bool>, book: Books, action: @escaping () -> Void) {
+        self._isPresent = isPresent
+        self.title = ""
+        self.note = ""
+        self.book = book
+        self.action = action
+    }
+    
+    init(isPresent: Binding<Bool>, topic: Topics) {
+        self._isPresent = isPresent
+        self.topic = topic
+        self.title = topic.title
+        self.note = topic.note ?? ""
+        self.book = topic.book!
+        self.action = {}
+    }
     
     var body: some View {
         NavigationStack {
@@ -27,11 +45,19 @@ struct ViewCreateTopic: View {
             }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Create") {
-                        let topics = Topics(title, note: note.isEmpty ? nil : note)
-                        vm.addItem(item: topics, book: book)
-                        action(topics)
-                        isPresent = false
+                    if let topic = topic {
+                        Button("Save") {
+                            topic.title = title
+                            topic.note = note.isEmpty ? nil : note
+                            isPresent = false
+                        }
+                    } else {
+                        Button("Create") {
+                            let topics = Topics(title, note: note.isEmpty ? nil : note)
+                            vm.addItem(item: topics, book: book)
+                            action()
+                            isPresent = false
+                        }
                     }
                 }
                 ToolbarItem(placement: .cancellationAction) {

@@ -64,3 +64,9 @@ struct AnswerDTO: Codable {
 struct StrAnswerDTO: Codable {
     let str: String
 }
+
+struct SimpleAnswerDTO: Codable {
+    let title: String
+    let possibleAnswers: [String]
+    let answer: Int
+}

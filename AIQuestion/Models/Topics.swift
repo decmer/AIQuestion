@@ -44,3 +44,9 @@ struct TopicDTO: Codable {
     let note: String?
     let isFavorite: Bool
 }
+
+struct SimpleTopicDTO: Codable {
+    let title: String
+    let answers: [SimpleAnswerDTO]
+}
+

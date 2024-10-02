@@ -34,6 +34,45 @@ final class ViewModel {
         }
     }
     
+    func fetchAll(book: Books) -> [Topics] {
+        let id = book.id
+        let descriptor = FetchDescriptor<Topics>(predicate: #Predicate { item in
+            item.book?.id == id
+        })
+        do {
+            return try context.fetch(descriptor)
+        } catch {
+            print("Error in fetch")
+        }
+        return []
+    }
+    
+    func fetchAll(topic: Topics) -> [Answers] {
+        let id = topic.id
+        let descriptor = FetchDescriptor<Answers>(predicate: #Predicate { item in
+            item.topic?.id == id
+        })
+        do {
+            return try context.fetch(descriptor)
+        } catch {
+            print("Error in fetch")
+        }
+        return []
+    }
+    
+    func fetch(book: Books) -> [Books] {
+        let id = book.id
+        let descriptor = FetchDescriptor<Books>(predicate: #Predicate { item in
+            item.id == id
+        })
+        do {
+            return try context.fetch(descriptor)
+        } catch {
+            print("Error in fetch")
+        }
+        return []
+    }
+    
     func addItem(item: Books) {
         context.insert(item)
         do {
@@ -84,41 +123,23 @@ final class ViewModel {
     
     func deleteAll(_ items: [Topics]) {
         for item in items {
-            delete(item)
+            context.delete(item)
         }
         do {
             try context.save()
         } catch {
             print("Error in save")
-        }
-    }
-    
-    func delete(_ item: Topics) {
-        if let book = item.book {
-            if var topics = book.topics {
-                topics.removeAll { topic in
-                    topic.id == item.id
-                }
-            }
         }
     }
     
     func deleteAll(_ items: [Answers]) {
         for item in items {
-            delete(item)
+            context.delete(item)
         }
         do {
             try context.save()
         } catch {
             print("Error in save")
-        }
-    }
-    
-    func delete(_ item: Answers) {
-        if var answer = item.answers {
-            answer.removeAll { answer in
-                answer.id == item.id
-            }
         }
     }
     

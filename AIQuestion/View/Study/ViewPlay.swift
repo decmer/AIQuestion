@@ -131,23 +131,27 @@ struct ViewPlay: View {
     }
     
     func itemAnswer(_ text: String, isCorrect: Bool = false) -> some View {
-        HStack {
-            Spacer()
-            Text(text)
-                .font(.body)
-                .padding(10)
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(
-                            isRevised
+        GeometryReader { geometry in
+            HStack {
+                Spacer()
+                Text(text)
+                    .frame(width: geometry.size.width-40)
+                    .font(.body)
+                    .padding(10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(
+                                isRevised
                                 ? Color.primary.opacity(0.2)
                                 : (isAnswered
-                                    ? (isCorrect ? Color.green.opacity(0.5) : Color.red.opacity(0.5))
-                                    : Color.primary.opacity(0.2)
+                                   ? (isCorrect ? Color.green.opacity(0.5) : Color.red.opacity(0.5))
+                                   : Color.primary.opacity(0.2)
                                   )
-                        )
-                )
-            Spacer()
+                            )
+                    )
+                
+                Spacer()
+            }
         }
     }
     

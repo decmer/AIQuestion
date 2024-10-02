@@ -18,6 +18,9 @@ struct MainViewBooks: View {
     @State private var searchText: String = ""
     @State private var selected = [Books]()
     @State private var showAlert = false
+    @State var showNotificate: Bool = false
+    @State var titleNotificate: String = ""
+    @State var messageNotificate: String = ""
     @State private var isAllEdit = false
     @State private var showImporter = false
     @State private var showExporter = false
@@ -84,16 +87,21 @@ struct MainViewBooks: View {
             }
             .navigationTitle("Books")
             .toolbar(content: {
-                NavigationButtonsList<Books>(isCreate: $isCreate, isEdit: $isEdit, selected: $selected, showAlert: $showAlert, isAllEdit: $isAllEdit, showImporter: $showImporter, showExporter: $showExporter, exportURL: $exportURL, items: $books, isPlay: $isPlay, exportJSON: exportJSON)
+                NavigationButtonsList<Books>(isCreate: $isCreate, isEdit: $isEdit, selected: $selected, showAlert: $showAlert, isAllEdit: $isAllEdit, showImporter: $showImporter, showExporter: $showExporter, exportURL: $exportURL, items: $books, isPlay: $isPlay, showNotificate: $showNotificate, titleNotificate: $titleNotificate, messageNotificate: $messageNotificate, exportJSON: exportJSON)
             })
             .searchable(text: $searchText)
         }
+        .overlay(
+            CustomAlert(showAlert: $showNotificate, title: $titleNotificate, message: $messageNotificate)
+        )
         .orderMenu($typeOreder)
         .alert("¡Are you sure you want to delete these books!", isPresented: $showAlert) {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
-                vm.deleteAll(selected)
-                isEdit = false
+                Task {
+                    vm.deleteAll(selected)
+                    isEdit = false
+                }
             }
         } message: {
             Text("If you delete it they remain in the trash for 30 days, then they will be permanently deleted")

@@ -13,6 +13,7 @@ struct ViewItemAnswer: View {
     @Binding var isEdit: Bool
     @Binding var listSelect: [Answers]
     @State var isSelected = false
+    @State var isEditItem = false
     var answer: Answers
     
     var body: some View {
@@ -89,7 +90,14 @@ struct ViewItemAnswer: View {
                         answer.isFavorite.toggle()
                     }
                 } label:{
+                    Text("Favorite")
                     Image(systemName: "star.fill")
+                }
+                Button {
+                    isEditItem = true
+                } label:{
+                    Text("Edit")
+                    Image(systemName: "pencil")
                 }
             }
             .frame(height: 100)
@@ -111,6 +119,9 @@ struct ViewItemAnswer: View {
             if !newValue {
                 isSelected = newValue
             }
+        }
+        .sheet(isPresented: $isEditItem) {
+            ViewCreateAnswer(isPresent: $isEditItem, answer: answer)
         }
     }
 }

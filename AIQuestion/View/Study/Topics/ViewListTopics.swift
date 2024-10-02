@@ -18,6 +18,9 @@ struct ViewListTopics: View {
     @State private var searchText: String = ""
     @State private var selected: [Topics] = []
     @State private var showAlert: Bool = false
+    @State var showNotificate: Bool = false
+    @State var titleNotificate: String = ""
+    @State var messageNotificate: String = ""
     @State private var isAllEdit: Bool = false
     @State private var showImporter: Bool = false
     @State private var showExporter: Bool = false
@@ -77,20 +80,20 @@ struct ViewListTopics: View {
             }
             .navigationTitle(book.title)
             .toolbar(content: {
-                NavigationButtonsList<Topics>(isCreate: $isCreate, isEdit: $isEdit, selected: $selected, showAlert: $showAlert, isAllEdit: $isAllEdit, showImporter: $showImporter, showExporter: $showExporter, exportURL: $exportURL, items: $topics, isPlay: $isPlay, exportJSON: exportJSON)
+                NavigationButtonsList<Topics>(isCreate: $isCreate, isEdit: $isEdit, selected: $selected, showAlert: $showAlert, isAllEdit: $isAllEdit, showImporter: $showImporter, showExporter: $showExporter, exportURL: $exportURL, items: $topics, isPlay: $isPlay, showNotificate: $showNotificate, titleNotificate: $titleNotificate, messageNotificate: $messageNotificate, exportJSON: exportJSON)
             })
             .searchable(text: $searchText)
         }
+        .overlay(
+            CustomAlert(showAlert: $showNotificate, title: $titleNotificate, message: $messageNotificate)
+        )
         .orderMenu($typeOreder)
         .alert("¡Are you sure you want to delete these books!", isPresented: $showAlert) {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
-                print("Borrando")
-                DispatchQueue.customConcurrentQueue.async {
+                Task {
                     vm.deleteAll(selected)
-                    if let tops = book.topics {
-                        topics = tops
-                    }
+                    topics = vm.fetchAll(book: book)
                     isEdit = false
                 }
             }
@@ -99,7 +102,7 @@ struct ViewListTopics: View {
         }
         .sheet(isPresented: $isCreate) {
             ViewCreateTopic(isPresent: $isCreate, book: book) {
-                topics.append($0)
+                topics = vm.fetchAll(book: book)
             }
         }
         .fullScreenCover(isPresented: $isPlay, content: {
@@ -115,10 +118,8 @@ struct ViewListTopics: View {
                 if let url = urls.first {
                     Task {
                         await vm.processImportJSON.processTopicsJSON(desde: url, book: book) { topic in
-                            if let tops = book.topics {
-                                topics.append(topic)
-                                topics = tops
-                            }
+                            vm.addItem(item: topic, book: book)
+                            topics = vm.fetchAll(book: book)
                         }
                     }
                 }
@@ -141,15 +142,13 @@ struct ViewListTopics: View {
                     }
                 }
             .onAppear {
-                if let tops = book.topics {
-                    topics = tops
-                }
+                topics = vm.fetchAll(book: book)
             }
     }
     
     private func items() -> some View {
-        ForEach(searchBooks) { book in
-            ViewItemTopic(isAllEdit: $isAllEdit, isEdit: $isEdit, listSelect: $selected, topic: book)
+        ForEach(searchBooks) { top in
+            ViewItemTopic(isAllEdit: $isAllEdit, isEdit: $isEdit, listSelect: $selected, topic: top)
                 .padding(.horizontal, 20)
                 .visualEffect { content, proxy in
                     let frame = proxy.frame(in: .scrollView(axis: .vertical))

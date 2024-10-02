@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct ViewItemBook: View {
-    @Environment(ViewModel.self) private var vm
     
     @Binding var isAllEdit: Bool
     @Binding var isEdit: Bool
     @Binding var listSelect: [Books]
     @State var isSelected = false
+    @State var isEditItem = false
     var book: Books
     
     var body: some View {
@@ -98,7 +98,14 @@ struct ViewItemBook: View {
                         book.isFavorite.toggle()
                     }
                 } label:{
+                    Text("Favorite")
                     Image(systemName: "star.fill")
+                }
+                Button {
+                    isEditItem = true
+                } label:{
+                    Text("Edit")
+                    Image(systemName: "pencil")
                 }
             }
             .frame(height: 100)
@@ -120,6 +127,9 @@ struct ViewItemBook: View {
             if !newValue {
                 isSelected = newValue
             }
+        }
+        .sheet(isPresented: $isEditItem) {
+            ViewCreateBook(isPresent: $isEditItem, book: book)
         }
     }
 }

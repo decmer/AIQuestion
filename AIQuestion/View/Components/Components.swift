@@ -27,6 +27,7 @@ struct TextLimit: View {
 }
 
 struct NavigationButtonsList<Item>: ToolbarContent {
+    @Environment(ViewModel.self) private var vm
     
     @Binding var isCreate: Bool
     @Binding var isEdit: Bool
@@ -38,6 +39,9 @@ struct NavigationButtonsList<Item>: ToolbarContent {
     @Binding var exportURL: URL?
     @Binding var items: [Item]
     @Binding var isPlay: Bool
+    @Binding var showNotificate: Bool
+    @Binding var titleNotificate: String
+    @Binding var messageNotificate: String
     var exportJSON: () async -> Void
     
     var body: some ToolbarContent {
@@ -68,7 +72,13 @@ struct NavigationButtonsList<Item>: ToolbarContent {
                         }
                     }
                 } else {
-                    if !items.isEmpty {
+                    if vm.answerdLogic.isEmpty(items: items) {
+                        withAnimation {
+                            showNotificate = true
+                            titleNotificate = "No Questions Asked"
+                            messageNotificate = "There are not enough questions to play, please create more"
+                        }
+                    } else {
                         isPlay = true
                     }
                 }
@@ -204,9 +214,63 @@ extension View {
     }
 }
 
+
+import SwiftUI
+
+struct CustomAlert: View {
+    @Binding var showAlert: Bool
+    @Binding var title: String
+    @Binding var message: String
+
+    var body: some View {
+        if showAlert {
+            VStack(spacing: 16) {
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(.white)
+
+                Text(message)
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+
+                Button(action: {
+                    withAnimation {
+                        showAlert.toggle()
+                    }
+                }) {
+                    Text("OK")
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
+                        .cornerRadius(10)
+                        .foregroundColor(.white)
+                }
+            }
+            .padding()
+            .background(Color.black.opacity(0.7))
+            .cornerRadius(20)
+            .shadow(radius: 20)
+            .frame(width: 300)
+            .transition(.scale)
+            .animation(.easeInOut, value: showAlert)
+        }
+    }
+}
+
+struct ContentView: View {
+    @State private var showAlert = false
+
+    var body: some View {
+        VStack {
+            Button("Mostrar Alerta") {
+                withAnimation {
+                    showAlert.toggle()
+                }
+            }
+        }
+    }
+}
+
 #Preview {
-    @Previewable @State var order: OrederItems = .title
-    
-    Text("Hola muy buenas")
-        .orderMenu($order)
+    ContentView()
 }

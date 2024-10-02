@@ -118,4 +118,33 @@ final class RandomQuestLogic {
         }
         return questions
     }
+    
+    func isEmpty(items: [Any]) -> Bool {
+        var aux = 0
+        if let books = items as? [Books] {
+            for book in books {
+                for topic in book.topics! {
+                    if !topic.answers!.isEmpty {
+                        aux = aux + topic.answers!.count
+                    }
+                    if aux >= 2 {
+                        return false
+                    }
+                }
+            }
+        } else if let topics = items as? [Topics] {
+            for topic in topics {
+                if !topic.answers!.isEmpty {
+                    aux = aux + topic.answers!.count
+                }
+                if aux >= 2 {
+                    return false
+                }
+            }
+        } else if let answers = items as? [Answers] {
+            return answers.count < 2
+        }
+        return true
+    }
+    
 }

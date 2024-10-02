@@ -13,6 +13,7 @@ struct ViewItemTopic: View {
     @Binding var isEdit: Bool
     @Binding var listSelect: [Topics]
     @State var isSelected = false
+    @State var isEditItem = false
     var topic: Topics
     
     var body: some View {
@@ -46,7 +47,7 @@ struct ViewItemTopic: View {
                 }
             }
             ZStack {
-                NavigationLink(destination: ViewListAnswer(topic: topic, answers: topic.answers!)) {
+                NavigationLink(destination: ViewListAnswer(topic: topic)) {
                     RoundedRectangle(cornerRadius: 24)
                         .fill(.itemsColors)
                 }
@@ -97,7 +98,14 @@ struct ViewItemTopic: View {
                         topic.isFavorite.toggle()
                     }
                 } label:{
+                    Text("Favorite")
                     Image(systemName: "star.fill")
+                }
+                Button {
+                    isEditItem = true
+                } label:{
+                    Text("Edit")
+                    Image(systemName: "pencil")
                 }
             }
             .frame(height: 100)
@@ -119,6 +127,9 @@ struct ViewItemTopic: View {
             if !newValue {
                 isSelected = newValue
             }
+        }
+        .sheet(isPresented: $isEditItem) {
+            ViewCreateTopic(isPresent: $isEditItem, topic: topic)
         }
     }
 }

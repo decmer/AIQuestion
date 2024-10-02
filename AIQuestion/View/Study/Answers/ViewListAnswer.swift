@@ -9,21 +9,24 @@ import SwiftUI
 import _SwiftData_SwiftUI
 
 struct ViewListAnswer: View {
-    @Environment(ViewModel.self) private var vm
+    @Environment(ViewModel.self) var vm
 
     @State var topic: Topics
     @State var answers: [Answers]
-    @State private var isCreate = false
-    @State private var isEdit = false
-    @State private var searchText: String = ""
-    @State private var selected = [Answers]()
-    @State private var showAlert = false
-    @State private var isAllEdit = false
-    @State private var showImporter = false
-    @State private var showExporter = false
+    @State private var isCreate: Bool
+    @State private var isEdit: Bool
+    @State private var searchText: String
+    @State private var selected: [Answers]
+    @State private var showAlert: Bool
+    @State var showNotificate: Bool
+    @State var titleNotificate: String
+    @State var messageNotificate: String
+    @State private var isAllEdit: Bool
+    @State private var showImporter: Bool
+    @State private var showExporter: Bool
     @State private var exportURL: URL?
-    @State private var isPlay: Bool = false
-    @State var typeOreder: OrederItems = .title
+    @State private var isPlay: Bool
+    @State var typeOreder: OrederItems
     
     var searchBooks: [Answers] {
         if case .title = typeOreder {
@@ -68,6 +71,24 @@ struct ViewListAnswer: View {
         }
     }
     
+    init(topic: Topics) {
+        self.topic = topic
+        self.answers = []
+        self.isCreate = false
+        self.isEdit = false
+        self.searchText = ""
+        self.selected = []
+        self.showAlert = false
+        self.showNotificate = false
+        self.titleNotificate = ""
+        self.messageNotificate = ""
+        self.isAllEdit = false
+        self.showImporter = false
+        self.showExporter = false
+        self.isPlay = false
+        self.typeOreder = .title
+    }
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -77,26 +98,29 @@ struct ViewListAnswer: View {
             }
             .navigationTitle(topic.title)
             .toolbar(content: {
-                NavigationButtonsList<Answers>(isCreate: $isCreate, isEdit: $isEdit, selected: $selected, showAlert: $showAlert, isAllEdit: $isAllEdit, showImporter: $showImporter, showExporter: $showExporter, exportURL: $exportURL, items: $answers, isPlay: $isPlay, exportJSON: exportJSON)
+                NavigationButtonsList<Answers>(isCreate: $isCreate, isEdit: $isEdit, selected: $selected, showAlert: $showAlert, isAllEdit: $isAllEdit, showImporter: $showImporter, showExporter: $showExporter, exportURL: $exportURL, items: $answers, isPlay: $isPlay, showNotificate: $showNotificate, titleNotificate: $titleNotificate, messageNotificate: $messageNotificate, exportJSON: exportJSON)
             })
             .searchable(text: $searchText)
         }
+        .overlay(
+            CustomAlert(showAlert: $showNotificate, title: $titleNotificate, message: $messageNotificate)
+        )
         .orderMenu($typeOreder)
         .alert("¡Are you sure you want to delete these books!", isPresented: $showAlert) {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
-                vm.deleteAll(selected)
-                if let ans = topic.answers {
-                    answers = ans
+                Task {
+                    vm.deleteAll(selected)
+                    answers = vm.fetchAll(topic: topic)
+                    isEdit = false
                 }
-                isEdit = false
             }
         } message: {
             Text("If you delete it they remain in the trash for 30 days, then they will be permanently deleted")
         }
         .sheet(isPresented: $isCreate) {
             ViewCreateAnswer(isPresent: $isCreate, topic: topic) {
-                answers.append($0)
+                answers = vm.fetchAll(topic: topic)
             }
         }
         .fullScreenCover(isPresented: $isPlay, content: {
@@ -112,10 +136,8 @@ struct ViewListAnswer: View {
                 if let url = urls.first {
                     Task {
                         await vm.processImportJSON.processAnswerdsJSON(desde: url, topic: topic) { answer in
-                            answers.append(answer)
-                            if let ans = topic.answers {
-                                answers = ans
-                            }
+                            vm.addItem(item: answer, topic: topic)
+                            answers = vm.fetchAll(topic: topic)
                         }
                     }
                 }
@@ -137,6 +159,9 @@ struct ViewListAnswer: View {
                             print("Error al exportar: \(error.localizedDescription)")
                     }
                 }
+            .onAppear {
+                answers = vm.fetchAll(topic: topic)
+            }
     }
     
     private func items() -> some View {

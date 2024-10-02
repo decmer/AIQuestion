@@ -36,9 +36,14 @@ final class Books {
 struct BookDTO: Codable {
     let id: UUID
     let title: String
-    var topics: [TopicDTO]
-    var dateCreate: Date
-    var lastTimeAsked: Date
-    var note: String?
+    let topics: [TopicDTO]
+    let dateCreate: Date
+    let lastTimeAsked: Date
+    let note: String?
     let isFavorite: Bool
+}
+
+struct SimpleBookDTO: Codable {
+    let title: String
+    let topics: [SimpleTopicDTO]
 }
