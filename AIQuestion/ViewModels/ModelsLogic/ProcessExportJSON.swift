@@ -38,7 +38,6 @@ final class ProcessExportJSON {
         let auxBooks = books.map { book in
             transformBooksJSON(book: book)
         }
-        print(auxBooks.first?.topics ?? "Esport is empty")
         return auxBooks
     }
 }

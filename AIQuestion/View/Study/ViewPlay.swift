@@ -16,6 +16,11 @@ struct ViewPlay: View {
     @State var answers: [Answers]?
     @State var isAnswered: Bool = false
     @State var isRevised: Bool = true
+    @State var showCounter: Bool = false
+    @State var nCorrect: Int = 0
+    @State var answerSelect: Int = 0
+    @State var nIncorrect: Int = 0
+    @State var nAnswered: Int = 0
 
     var book: Books?
     var books: [Books]?
@@ -39,6 +44,7 @@ struct ViewPlay: View {
                             Spacer()
                             Button {
                                 self.answer = vm.answerdLogic.nextQuestion()
+
                                 withAnimation {
                                     isAnswered = false
                                 }
@@ -66,6 +72,7 @@ struct ViewPlay: View {
                     ProgressView()
                 }
             }
+            .counterOverlay($showCounter, nCorrect: $nCorrect, nIncorrect: $nIncorrect)
             .navigationTitle("Play")
             .toolbar(content: {
                 ToolbarItem(placement: .cancellationAction) {
@@ -99,7 +106,6 @@ struct ViewPlay: View {
                             isRevised = false
                         }
                     }
-                    print(isRevised)
                 }
             }
         }
@@ -117,11 +123,19 @@ struct ViewPlay: View {
                     }
                 } else if let answers = answer.answers {
                     ForEach(answers, id: \.self) { item in
-                        itemAnswer(item.str, isCorrect: item.str == answers[answer.answer].str)
+                        itemAnswer(item.str, isCorrect: item.str == answers[answer.answer >= answers.count ? 0 : answer.answer].str)
                             .padding()
                             .onTapGesture {
                                 withAnimation {
+                                    showCounter = true
+                                    if vm.answerdLogic.UpdateCriteria(answer: answer, selected: answerSelect) {
+                                        nCorrect += 1
+                                    } else {
+                                        nIncorrect += 1
+                                    }
+                                    nAnswered += 1
                                     isAnswered = true
+                                    answerSelect = answers.index(after: answer.answer)
                                 }
                             }
                     }

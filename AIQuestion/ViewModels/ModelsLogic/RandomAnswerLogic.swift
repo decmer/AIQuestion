@@ -77,7 +77,7 @@ final class RandomQuestLogic {
     }
     
     
-    func UpdateCriteria(answer: Answers, selected: Int){
+    func UpdateCriteria(answer: Answers, selected: Int) -> Bool{
 
         if answer.answer != selected {
             if answer.learningLevel < 5 {
@@ -89,6 +89,8 @@ final class RandomQuestLogic {
             }
         }
         answer.lastTimeAsked = Date()
+        
+        return answer.answer == selected
     }
     
     

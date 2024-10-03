@@ -42,7 +42,6 @@ struct ViewItemBook: View {
                         }
                     }
                     .padding(5)
-                    .transition(.scale(scale: 2))
                     Spacer()
                 }
             }
@@ -110,9 +109,10 @@ struct ViewItemBook: View {
             }
             .frame(height: 100)
             .padding(.leading, isEdit ? 40 : 0)
-            .animation(.easeInOut(duration: 0.3), value: isEdit)
+            
         }
         .onAppear {
+            isSelected = false
             if isAllEdit {
                 isSelected = true
             }
@@ -128,8 +128,8 @@ struct ViewItemBook: View {
                 isSelected = newValue
             }
         }
-        .sheet(isPresented: $isEditItem) {
-            ViewCreateBook(isPresent: $isEditItem, book: book)
-        }
+//        .sheet(isPresented: $isEditItem) {
+//            ViewCreateBook(isPresent: $isEditItem, book: book)
+//        }
     }
 }

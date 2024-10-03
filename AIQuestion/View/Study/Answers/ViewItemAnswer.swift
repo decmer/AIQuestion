@@ -105,6 +105,7 @@ struct ViewItemAnswer: View {
             .animation(.easeInOut(duration: 0.3), value: isEdit)
         }
         .onAppear {
+            isSelected = false
             if isAllEdit {
                 isSelected = true
             }

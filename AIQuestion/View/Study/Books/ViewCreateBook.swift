@@ -34,8 +34,10 @@ struct ViewCreateBook: View {
         NavigationStack {
             Form{
                 Section("Info") {
-                    TextLimit(text: $title,placeholder: "Title", limit: characterTitleLimit)
-                    TextLimit(text: $note,placeholder: "Note", limit: characterNoteLimit)
+                    TextField("Title", text: $title)
+                        .multilineTextAlignment(.leading)
+                    TextField("Note", text: $note)
+                        .multilineTextAlignment(.leading)
                 }
             }
             .toolbar {

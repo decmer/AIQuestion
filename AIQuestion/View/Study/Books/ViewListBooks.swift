@@ -81,7 +81,7 @@ struct MainViewBooks: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 350, maximum: 450))]) {
+                VStack {
                     items()
                 }
             }
@@ -98,10 +98,11 @@ struct MainViewBooks: View {
         .alert("¡Are you sure you want to delete these books!", isPresented: $showAlert) {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
+                let seelectDelete = selected
                 Task {
-                    vm.deleteAll(selected)
-                    isEdit = false
+                    await vm.deleteAll(seelectDelete)
                 }
+                isEdit = false
             }
         } message: {
             Text("If you delete it they remain in the trash for 30 days, then they will be permanently deleted")
@@ -157,22 +158,20 @@ struct MainViewBooks: View {
     }
     
     private func items() -> some View {
-        ForEach(searchBooks) { book in
+        ForEach(searchBooks, id: \.id) { book in
             ViewItemBook(isAllEdit: $isAllEdit, isEdit: $isEdit, listSelect: $selected, book: book)
                 .padding(.horizontal, 20)
                 .visualEffect { content, proxy in
                     let frame = proxy.frame(in: .scrollView(axis: .vertical))
-                    
+
                     let distance = min(0, frame.minY)
-                    
                     return content
                         .hueRotation(.degrees(frame.origin.y / 10))
                         .scaleEffect(1 + distance / 700)
-                        .offset(y: -distance / 1.25)
+                        .offset(y: frame.minY > -250 ? -distance / 1.25 : -100)
                         .brightness(-distance / 400)
                         .blur(radius: -distance / 50)
                 }
-                .transition(.move(edge: .leading))
         }
     }
 

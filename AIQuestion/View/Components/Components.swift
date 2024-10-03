@@ -65,7 +65,6 @@ struct NavigationButtonsList<Item>: ToolbarContent {
                     withAnimation {
                         isAllEdit.toggle()
                         if isAllEdit {
-                            print(items.count)
                             selected = items
                         } else {
                             selected.removeAll()
@@ -118,7 +117,7 @@ struct NavigationButtonsList<Item>: ToolbarContent {
         
         ToolbarItem(placement: .automatic) {
             Button {
-                withAnimation(.easeInOut(duration: 0.1)) {
+                withAnimation {
                     isEdit.toggle()
                 }
                 isAllEdit = false
@@ -214,9 +213,6 @@ extension View {
     }
 }
 
-
-import SwiftUI
-
 struct CustomAlert: View {
     @Binding var showAlert: Bool
     @Binding var title: String
@@ -271,6 +267,100 @@ struct ContentView: View {
     }
 }
 
+struct OverlayCounter: ViewModifier {
+
+    @Binding var isPresent: Bool
+    @Binding var nCorrect: Int
+    @Binding var nIncorrect: Int
+    @State var isShow = false
+    
+    func body(content: Content) -> some View {
+        ZStack {
+            content
+            if isShow {
+                VStack {
+                    HStack {
+                        Spacer()
+                        getBody()
+                            .onTapGesture {
+                                withAnimation(.easeInOut(duration: 0.6)) {
+                                    isPresent.toggle()
+                                }
+                            }
+                        Spacer()
+                    }
+                    Spacer()
+                }
+            }
+        }
+        .onAppear {
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.4, execute: {
+                withAnimation {
+                    isShow = true
+                }
+            })
+        }
+    }
+
+    private func getBody() -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 19)
+                .foregroundStyle(Color.black)
+                .frame(width: 126, height: isPresent ? 90 : 37)
+                .padding(.top, 14)
+                .overlay {
+                    ZStack {
+                        VStack {
+                            Spacer()
+                            HStack {
+                                Text("\(nCorrect)")
+                                    .padding(.leading, 10)
+                                    .foregroundStyle(Color.green)
+                                Spacer()
+                                Text("\(nIncorrect)")
+                                    .padding(.trailing, 10)
+                                    .foregroundStyle(Color.red)
+                            }
+                            Spacer()
+                        }
+                        .padding(.top, 14)
+                        VStack {
+                            Spacer()
+                            HStack {
+                                Spacer()
+                                Text("Time")
+                                    .padding(10)
+                                    .foregroundStyle(Color.white)
+                                Spacer()
+                            }
+                        }
+                        .padding(.top, 14)
+                    }
+                }
+        }
+        .ignoresSafeArea()
+    }
+    
+}
+
+extension View {
+    func counterOverlay(_ isPresent: Binding<Bool>, nCorrect: Binding<Int>, nIncorrect: Binding<Int>) -> some View {
+        self.modifier(OverlayCounter(isPresent: isPresent, nCorrect: nCorrect, nIncorrect: nIncorrect))
+    }
+}
+
 #Preview {
-    ContentView()
+
+    @Previewable @State var isPresent: Bool = true
+    @Previewable @State var nCorrect: Int = 900
+    @Previewable @State var nIncorrect: Int = 990
+    @Previewable @State var count: Int = 0
+    
+    Button(action: {
+        isPresent.toggle()
+    }, label: {
+        Text("Button")
+            
+    })
+    .counterOverlay($isPresent, nCorrect: $nCorrect, nIncorrect: $nIncorrect)
 }

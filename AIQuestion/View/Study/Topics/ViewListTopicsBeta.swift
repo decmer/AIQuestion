@@ -9,14 +9,15 @@ import SwiftUI
 import SwiftData
 
 @MainActor
-struct MainViewBooksBeta: View {
+struct ViewListTopicsBeta: View {
     @Environment(ViewModel.self) private var vm
     
+    @State var book: Books
+    @State private var topics = [Topics]()
     @State private var isCreate = false
-    @State private var books = [Books]()
     @State private var isEdit = false
     @State private var searchText: String = ""
-    @State private var selected = [Books]()
+    @State private var selected = [Topics]()
     @State private var showAlert = false
     @State var showNotificate: Bool = false
     @State var titleNotificate: String = ""
@@ -28,22 +29,13 @@ struct MainViewBooksBeta: View {
     @State private var isPlay: Bool = false
     @State var typeOreder: OrederItems = .title
     
-
-    
-    init() {
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithTransparentBackground()
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
-    }
-    
     var body: some View {
         NavigationStack {
-            ViewItemsBookBeta(isAllEdit: $isAllEdit, isEdit: $isEdit, listSelect: $selected, books: $books, typeOreder: $typeOreder)
-            .navigationTitle("Books")
-            .toolbar(content: {
-                NavigationButtonsList<Books>(isCreate: $isCreate, isEdit: $isEdit, selected: $selected, showAlert: $showAlert, isAllEdit: $isAllEdit, showImporter: $showImporter, showExporter: $showExporter, exportURL: $exportURL, items: $books, isPlay: $isPlay, showNotificate: $showNotificate, titleNotificate: $titleNotificate, messageNotificate: $messageNotificate, exportJSON: exportJSON)
-            })
+            ViewItemTopicBeta(isAllEdit: $isAllEdit, isEdit: $isEdit, listSelect: $selected, topics: $topics, typeOreder: $typeOreder)
+                .navigationTitle("\(book.title)")
+                .toolbar(content: {
+                    NavigationButtonsList<Topics>(isCreate: $isCreate, isEdit: $isEdit, selected: $selected, showAlert: $showAlert, isAllEdit: $isAllEdit, showImporter: $showImporter, showExporter: $showExporter, exportURL: $exportURL, items: $topics, isPlay: $isPlay, showNotificate: $showNotificate, titleNotificate: $titleNotificate, messageNotificate: $messageNotificate, exportJSON: exportJSON)
+                })
             
         }
         .overlay(
@@ -56,6 +48,7 @@ struct MainViewBooksBeta: View {
                 let seelectDelete = selected
                 Task {
                     await vm.deleteAll(seelectDelete)
+                    topics = vm.fetchAll(book: book)
                 }
                 isEdit = false
             }
@@ -63,10 +56,12 @@ struct MainViewBooksBeta: View {
             Text("If you delete it they remain in the trash for 30 days, then they will be permanently deleted")
         }
         .sheet(isPresented: $isCreate) {
-            ViewCreateBook(isPresent: $isCreate)
+            ViewCreateTopic(isPresent: $isCreate, book: book) {
+                topics = vm.fetchAll(book: book)
+            }
         }
         .fullScreenCover(isPresented: $isPlay, content: {
-            ViewPlay(isPlay: $isPlay, books: books)
+            ViewPlay(isPlay: $isPlay, book: book)
         })
         .fileImporter(
             isPresented: $showImporter,
@@ -101,14 +96,7 @@ struct MainViewBooksBeta: View {
                     }
                 }
             .onAppear {
-                withAnimation {
-                    books = vm.books
-                }
-            }
-            .onChange(of: vm.books) { oldBooks, newBooks in
-                withAnimation {
-                    books = newBooks
-                }
+                topics = vm.fetchAll(book: book)
             }
     }
         
@@ -118,7 +106,7 @@ struct MainViewBooksBeta: View {
         encoder.dateEncodingStrategy = .iso8601
         
         do {
-            let jsonData = try encoder.encode(vm.processExportJSON.transformBooksJSON(books: selected))
+            let jsonData = try encoder.encode(vm.processExportJSON.transformTopicsJSON(topics: selected))
             let tempURL = FileManager.default.temporaryDirectory
                 .appendingPathComponent("BooksEsported-\(Date().timeIntervalSince1970).json")
             

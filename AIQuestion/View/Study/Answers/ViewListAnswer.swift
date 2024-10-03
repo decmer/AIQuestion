@@ -92,7 +92,7 @@ struct ViewListAnswer: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 350, maximum: 450))]) {
+                VStack {
                     items()
                 }
             }
@@ -110,7 +110,7 @@ struct ViewListAnswer: View {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
                 Task {
-                    vm.deleteAll(selected)
+                    await vm.deleteAll(selected)
                     answers = vm.fetchAll(topic: topic)
                     isEdit = false
                 }
@@ -176,11 +176,10 @@ struct ViewListAnswer: View {
                     return content
                         .hueRotation(.degrees(frame.origin.y / 10))
                         .scaleEffect(1 + distance / 700)
-                        .offset(y: -distance / 1.25)
+                        .offset(y: frame.minY > -250 ? -distance / 1.25 : -100)
                         .brightness(-distance / 400)
                         .blur(radius: -distance / 50)
                 }
-                .transition(.move(edge: .leading))
         }
     }
     

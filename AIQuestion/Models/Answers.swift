@@ -15,12 +15,13 @@ final class Answers {
     var topic: Topics? = nil
     @Relationship(deleteRule: .cascade, inverse: \StrAnswer.answer) var answers: [StrAnswer]? = nil
     var answer: Int = 0
+    var time: Int = 20
     var learningLevel: Int = 0
     var dateCreate: Date = Date()
     var lastTimeAsked: Date = Date()
     var isFavorite: Bool = false
     
-    init(id: UUID, title: String, topic: Topics? = nil, answers: [String], answer: Int, learningLevel: Int, dateCreate: Date, lastTimeAsked: Date, isFavorite: Bool = false) {
+    init(id: UUID, title: String, topic: Topics? = nil, answers: [String], answer: Int, time: Int = 20, learningLevel: Int, dateCreate: Date, lastTimeAsked: Date, isFavorite: Bool = false) {
         self.id = id
         self.title = title
         self.topic = topic
@@ -35,8 +36,8 @@ final class Answers {
         self.isFavorite = isFavorite
     }
     
-    convenience init(_ title: String, answers: [String], answer: Int) {
-        self.init(id: UUID(), title: title, answers: answers, answer: answer, learningLevel: 20, dateCreate: Date(), lastTimeAsked: Date())
+    convenience init(_ title: String, answers: [String], answer: Int, time: Int = 20) {
+        self.init(id: UUID(), title: title, answers: answers, answer: answer, time: 20, learningLevel: 20, dateCreate: Date(), lastTimeAsked: Date())
     }
 }
 

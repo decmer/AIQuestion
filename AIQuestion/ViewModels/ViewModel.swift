@@ -109,19 +109,7 @@ final class ViewModel {
         }
     }
     
-    func deleteAll(_ items: [Books]) {
-        for item in items {
-            context.delete(item)
-            fetchAll()
-        }
-        do {
-            try context.save()
-        } catch {
-            print("Error in save")
-        }
-    }
-    
-    func deleteAll(_ items: [Topics]) {
+    func deleteAll(_ items: [Books]) async {
         for item in items {
             context.delete(item)
         }
@@ -130,9 +118,21 @@ final class ViewModel {
         } catch {
             print("Error in save")
         }
+        fetchAll()
     }
     
-    func deleteAll(_ items: [Answers]) {
+    func deleteAll(_ items: [Topics]) async {
+        for item in items {
+            context.delete(item)
+        }
+        do {
+            try context.save()
+        } catch {
+            print("Error in save")
+        }
+    }
+    
+    func deleteAll(_ items: [Answers]) async {
         for item in items {
             context.delete(item)
         }
