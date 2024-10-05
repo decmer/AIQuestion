@@ -9,15 +9,15 @@ import SwiftUI
 import SwiftData
 
 @MainActor
-struct ViewListAnswersBeta: View {
+struct MainViewTopics: View {
     @Environment(ViewModel.self) private var vm
     
-    @State var topic: Topics
-    @State private var answers = [Answers]()
+    @State var book: Books
+    @State private var topics = [Topics]()
     @State private var isCreate = false
     @State private var isEdit = false
     @State private var searchText: String = ""
-    @State private var selected = [Answers]()
+    @State private var selected = [Topics]()
     @State private var showAlert = false
     @State var showNotificate: Bool = false
     @State var titleNotificate: String = ""
@@ -31,10 +31,10 @@ struct ViewListAnswersBeta: View {
     
     var body: some View {
         NavigationStack {
-            ViewItemAnswerBeta(isAllEdit: $isAllEdit, isEdit: $isEdit, listSelect: $selected, answers: $answers, typeOreder: $typeOreder)
-                .navigationTitle("\(topic.title)")
+            ViewItemTopic(isAllEdit: $isAllEdit, isEdit: $isEdit, listSelect: $selected, topics: $topics, typeOreder: $typeOreder)
+                .navigationTitle("\(book.title)")
                 .toolbar(content: {
-                    NavigationButtonsList<Answers>(isCreate: $isCreate, isEdit: $isEdit, selected: $selected, showAlert: $showAlert, isAllEdit: $isAllEdit, showImporter: $showImporter, showExporter: $showExporter, exportURL: $exportURL, items: $answers, isPlay: $isPlay, showNotificate: $showNotificate, titleNotificate: $titleNotificate, messageNotificate: $messageNotificate, exportJSON: exportJSON)
+                    NavigationButtonsList<Topics>(isCreate: $isCreate, isEdit: $isEdit, selected: $selected, showAlert: $showAlert, isAllEdit: $isAllEdit, showImporter: $showImporter, showExporter: $showExporter, exportURL: $exportURL, items: $topics, isPlay: $isPlay, showNotificate: $showNotificate, titleNotificate: $titleNotificate, messageNotificate: $messageNotificate, exportJSON: exportJSON)
                 })
             
         }
@@ -48,7 +48,7 @@ struct ViewListAnswersBeta: View {
                 let seelectDelete = selected
                 Task {
                     await vm.deleteAll(seelectDelete)
-                    answers = vm.fetchAll(topic: topic)
+                    topics = vm.fetchAll(book: book)
                 }
                 isEdit = false
             }
@@ -56,12 +56,12 @@ struct ViewListAnswersBeta: View {
             Text("If you delete it they remain in the trash for 30 days, then they will be permanently deleted")
         }
         .sheet(isPresented: $isCreate) {
-            ViewCreateAnswer(isPresent: $isCreate, topic: topic) {
-                answers = vm.fetchAll(topic: topic)
+            ViewCreateTopic(isPresent: $isCreate, book: book) {
+                topics = vm.fetchAll(book: book)
             }
         }
         .fullScreenCover(isPresented: $isPlay, content: {
-            ViewPlay(isPlay: $isPlay, answers: answers)
+            ViewPlay(isPlay: $isPlay, book: book)
         })
         .fileImporter(
             isPresented: $showImporter,
@@ -96,7 +96,7 @@ struct ViewListAnswersBeta: View {
                     }
                 }
             .onAppear {
-                answers = vm.fetchAll(topic: topic)
+                topics = vm.fetchAll(book: book)
             }
     }
         
@@ -106,9 +106,9 @@ struct ViewListAnswersBeta: View {
         encoder.dateEncodingStrategy = .iso8601
         
         do {
-            let jsonData = try encoder.encode(vm.processExportJSON.transformAnswersJSON(answers: selected))
+            let jsonData = try encoder.encode(vm.processExportJSON.transformTopicsJSON(topics: selected))
             let tempURL = FileManager.default.temporaryDirectory
-                .appendingPathComponent("AnswerEsported-\(Date().timeIntervalSince1970).json")
+                .appendingPathComponent("BooksEsported-\(Date().timeIntervalSince1970).json")
             
             try jsonData.write(to: tempURL)
             exportURL = tempURL

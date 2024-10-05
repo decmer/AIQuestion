@@ -1,8 +1,8 @@
 //
-//  ContentView.swift
-//  IAQuestion
+//  ViewListBooks2.swift
+//  AIQuestion
 //
-//  Created by Jose Merino Decena on 12/9/24.
+//  Created by Jose Decena on 3/10/24.
 //
 
 import SwiftUI
@@ -28,48 +28,7 @@ struct MainViewBooks: View {
     @State private var isPlay: Bool = false
     @State var typeOreder: OrederItems = .title
     
-    var searchBooks: [Books] {
-        if case .title = typeOreder {
-            if searchText.isEmpty {
-                return books.sorted {
-                    $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
-                }
-            }
-            return books.filter { topic in
-                topic.title.contains(searchText)
-            }.sorted {
-                $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
-            }
-        } else if case .favorite = typeOreder {
-            if searchText.isEmpty {
-                return books.sorted {
-                    if $0.isFavorite == $1.isFavorite {
-                        return $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
-                        }
-                    return $0.isFavorite
-                }
-            }
-            return books.filter { topic in
-                topic.title.contains(searchText)
-            }.sorted {
-                if $0.isFavorite == $1.isFavorite {
-                    return $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
-                    }
-                return $0.isFavorite
-            }
-        } else {
-            if searchText.isEmpty {
-                return books.sorted {
-                    $0.lastTimeAsked < $1.lastTimeAsked
-                }
-            }
-            return books.filter { topic in
-                topic.title.contains(searchText)
-            }.sorted {
-                $0.lastTimeAsked < $1.lastTimeAsked
-            }
-        }
-    }
+
     
     init() {
         let appearance = UINavigationBarAppearance()
@@ -80,16 +39,12 @@ struct MainViewBooks: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack {
-                    items()
-                }
-            }
+            ViewItemsBook(isAllEdit: $isAllEdit, isEdit: $isEdit, listSelect: $selected, books: $books, typeOreder: $typeOreder)
             .navigationTitle("Books")
             .toolbar(content: {
                 NavigationButtonsList<Books>(isCreate: $isCreate, isEdit: $isEdit, selected: $selected, showAlert: $showAlert, isAllEdit: $isAllEdit, showImporter: $showImporter, showExporter: $showExporter, exportURL: $exportURL, items: $books, isPlay: $isPlay, showNotificate: $showNotificate, titleNotificate: $titleNotificate, messageNotificate: $messageNotificate, exportJSON: exportJSON)
             })
-            .searchable(text: $searchText)
+            
         }
         .overlay(
             CustomAlert(showAlert: $showNotificate, title: $titleNotificate, message: $messageNotificate)
@@ -156,25 +111,7 @@ struct MainViewBooks: View {
                 }
             }
     }
-    
-    private func items() -> some View {
-        ForEach(searchBooks, id: \.id) { book in
-            ViewItemBook(isAllEdit: $isAllEdit, isEdit: $isEdit, listSelect: $selected, book: book)
-                .padding(.horizontal, 20)
-                .visualEffect { content, proxy in
-                    let frame = proxy.frame(in: .scrollView(axis: .vertical))
-
-                    let distance = min(0, frame.minY)
-                    return content
-                        .hueRotation(.degrees(frame.origin.y / 10))
-                        .scaleEffect(1 + distance / 700)
-                        .offset(y: frame.minY > -250 ? -distance / 1.25 : -100)
-                        .brightness(-distance / 400)
-                        .blur(radius: -distance / 50)
-                }
-        }
-    }
-
+        
     func exportJSON() async {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
@@ -192,4 +129,3 @@ struct MainViewBooks: View {
         }
     }
 }
-
