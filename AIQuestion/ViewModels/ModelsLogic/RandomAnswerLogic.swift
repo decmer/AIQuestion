@@ -114,6 +114,7 @@ final class RandomQuestLogic {
         if let topic = book.topics {
             topic.forEach { tema in
                 if let answersAux = tema.answers {
+                    
                     questions.append(contentsOf: answersAux)
                 }
             }

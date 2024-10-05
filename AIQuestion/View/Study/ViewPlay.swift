@@ -22,8 +22,32 @@ struct ViewPlay: View {
     @State var nIncorrect: Int = 0
     @State var nAnswered: Int = 0
 
+    var topic: Topics?
     var book: Books?
-    var books: [Books]?
+    @Binding var books: [Books]?
+    
+    init(isPlay: Binding<Bool>, answers: [Answers]? = nil, book: Books? = nil, topic: Topics? = nil, books: Binding<[Books]>? = nil) {
+        self._isPlay = isPlay
+        self.assigningQuestions = true
+        self.answer = nil
+        self.answers = answers
+        self.isAnswered = false
+        self.isRevised = true
+        self.showCounter = false
+        self.nCorrect = 0
+        self.answerSelect = 0
+        self.nIncorrect = 0
+        self.nAnswered = 0
+        self.book = book
+        self.topic = topic
+        self._books = Binding(get: {
+            books?.wrappedValue
+        }, set: { newValue in
+            if let books = books {
+                books.wrappedValue = newValue ?? []
+            }
+        })
+    }
     
     var body: some View {
         NavigationStack {
@@ -88,6 +112,9 @@ struct ViewPlay: View {
                 Task {
                     if let book = book {
                         answers = await vm.answerdLogic.joinQuest(book: book)
+                    }
+                    if let topic = topic {
+                        answers = topic.answers
                     }
                     if let books = books {
                         answers = await vm.answerdLogic.joinQuest(books: books)

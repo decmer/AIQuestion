@@ -13,7 +13,7 @@ struct MainView: View {
             GeometryReader { geometry in
                 LazyVGrid(columns: [GridItem(), GridItem()], spacing: 20) {
                     NavigationLink {
-                        MainViewBooksBeta()
+                        MainViewBooks()
                     } label: {
                         PreviewBook()
                             .frame(width: geometry.size.width / 2.5, height: geometry.size.width / 2.5) // Igual altura para ambas

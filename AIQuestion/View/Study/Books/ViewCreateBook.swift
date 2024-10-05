@@ -17,7 +17,9 @@ struct ViewCreateBook: View {
     private let characterTitleLimit: Int = 30
     private let characterNoteLimit: Int = 50
     
-    init(isPresent: Binding<Bool>, title: String = "", note: String = "", book: Books? = nil) {
+    var action: () -> Void
+    
+    init(isPresent: Binding<Bool>, title: String = "", note: String = "", book: Books? = nil, action: @escaping () -> Void = {}) {
         self._isPresent = isPresent
         if let book = book {
             self.book = book
@@ -27,7 +29,9 @@ struct ViewCreateBook: View {
             self.title = title
             self.note = note
             self.book = book
+            
         }
+        self.action = action
     }
     
     var body: some View {
@@ -51,6 +55,7 @@ struct ViewCreateBook: View {
                     } else {
                         Button("Create") {
                             vm.addItem(item: Books(title, note: note.isEmpty ? nil : note))
+                            action()
                             isPresent = false
                         }
                     }

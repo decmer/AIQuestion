@@ -31,7 +31,7 @@ struct MainViewAnswers: View {
     
     var body: some View {
         NavigationStack {
-            ViewItemAnswerBeta(isAllEdit: $isAllEdit, isEdit: $isEdit, listSelect: $selected, answers: $answers, typeOreder: $typeOreder)
+            ViewItemAnswer(isAllEdit: $isAllEdit, isEdit: $isEdit, listSelect: $selected, answers: $answers, typeOreder: $typeOreder)
                 .navigationTitle("\(topic.title)")
                 .toolbar(content: {
                     NavigationButtonsList<Answers>(isCreate: $isCreate, isEdit: $isEdit, selected: $selected, showAlert: $showAlert, isAllEdit: $isAllEdit, showImporter: $showImporter, showExporter: $showExporter, exportURL: $exportURL, items: $answers, isPlay: $isPlay, showNotificate: $showNotificate, titleNotificate: $titleNotificate, messageNotificate: $messageNotificate, exportJSON: exportJSON)
@@ -48,7 +48,9 @@ struct MainViewAnswers: View {
                 let seelectDelete = selected
                 Task {
                     await vm.deleteAll(seelectDelete)
-                    answers = vm.fetchAll(topic: topic)
+                    withAnimation {
+                        answers = vm.fetchAll(topic: topic)
+                    }
                 }
                 isEdit = false
             }
@@ -61,7 +63,7 @@ struct MainViewAnswers: View {
             }
         }
         .fullScreenCover(isPresented: $isPlay, content: {
-            ViewPlay(isPlay: $isPlay, answers: answers)
+            ViewPlay(isPlay: $isPlay, topic: topic)
         })
         .fileImporter(
             isPresented: $showImporter,
@@ -72,8 +74,10 @@ struct MainViewAnswers: View {
             case .success(let urls):
                 if let url = urls.first {
                     Task {
-                        await vm.processImportJSON.processBooksJSON(desde: url) {
-                            vm.fetchAll()
+                        await vm.processImportJSON.processAnswersJSON(desde: url, topic: topic) {
+                            withAnimation {
+                                answers = vm.fetchAll(topic: topic)
+                            }
                         }
                     }
                 }
@@ -96,7 +100,9 @@ struct MainViewAnswers: View {
                     }
                 }
             .onAppear {
-                answers = vm.fetchAll(topic: topic)
+                withAnimation {
+                    answers = vm.fetchAll(topic: topic)
+                }
             }
     }
         

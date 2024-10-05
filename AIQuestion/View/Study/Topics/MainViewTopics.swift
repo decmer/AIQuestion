@@ -72,8 +72,10 @@ struct MainViewTopics: View {
             case .success(let urls):
                 if let url = urls.first {
                     Task {
-                        await vm.processImportJSON.processBooksJSON(desde: url) {
-                            vm.fetchAll()
+                        await vm.processImportJSON.processTopicsJSON(desde: url, book: book) {
+                            withAnimation {
+                                topics = vm.fetchAll(book: book)
+                            }
                         }
                     }
                 }
@@ -96,7 +98,9 @@ struct MainViewTopics: View {
                     }
                 }
             .onAppear {
-                topics = vm.fetchAll(book: book)
+                withAnimation {
+                    topics = vm.fetchAll(book: book)
+                }
             }
     }
         

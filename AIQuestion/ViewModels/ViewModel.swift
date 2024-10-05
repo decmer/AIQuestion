@@ -15,23 +15,21 @@ final class ViewModel {
     let processExportJSON: ProcessExportJSON
     let answerdLogic: RandomQuestLogic
     
-    var books: [Books] = []
-    
     init(context: ModelContext) {
         self.context = context
         self.processImportJSON = ProcessImportJSON(context: context)
         self.processExportJSON = ProcessExportJSON()
         self.answerdLogic = RandomQuestLogic()
-        fetchAll()
     }
     
-    func fetchAll() {
+    func fetchAll() -> [Books] {
         let descriptor = FetchDescriptor<Books>()
         do {
-            books = try context.fetch(descriptor)
+            return try context.fetch(descriptor)
         } catch {
             print("Error in fetch")
         }
+        return []
     }
     
     func fetchAll(book: Books) -> [Topics] {
@@ -80,7 +78,6 @@ final class ViewModel {
         } catch {
             print("Error in save")
         }
-        fetchAll()
     }
     
     func addItem(item: Topics, book: Books) {
@@ -118,7 +115,6 @@ final class ViewModel {
         } catch {
             print("Error in save")
         }
-        fetchAll()
     }
     
     func deleteAll(_ items: [Topics]) async {

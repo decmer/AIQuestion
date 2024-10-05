@@ -56,6 +56,9 @@ struct MainViewBooks: View {
                 let seelectDelete = selected
                 Task {
                     await vm.deleteAll(seelectDelete)
+                    withAnimation {
+                        books = vm.fetchAll()
+                    }
                 }
                 isEdit = false
             }
@@ -63,10 +66,14 @@ struct MainViewBooks: View {
             Text("If you delete it they remain in the trash for 30 days, then they will be permanently deleted")
         }
         .sheet(isPresented: $isCreate) {
-            ViewCreateBook(isPresent: $isCreate)
+            ViewCreateBook(isPresent: $isCreate) {
+                withAnimation {
+                    books = vm.fetchAll()
+                }
+            }
         }
         .fullScreenCover(isPresented: $isPlay, content: {
-            ViewPlay(isPlay: $isPlay, books: books)
+            ViewPlay(isPlay: $isPlay, books: $books)
         })
         .fileImporter(
             isPresented: $showImporter,
@@ -78,7 +85,9 @@ struct MainViewBooks: View {
                 if let url = urls.first {
                     Task {
                         await vm.processImportJSON.processBooksJSON(desde: url) {
-                            vm.fetchAll()
+                            withAnimation {
+                                books = vm.fetchAll()
+                            }
                         }
                     }
                 }
@@ -102,12 +111,7 @@ struct MainViewBooks: View {
                 }
             .onAppear {
                 withAnimation {
-                    books = vm.books
-                }
-            }
-            .onChange(of: vm.books) { oldBooks, newBooks in
-                withAnimation {
-                    books = newBooks
+                    books = vm.fetchAll()
                 }
             }
     }

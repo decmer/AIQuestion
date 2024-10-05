@@ -7,37 +7,37 @@
 
 import SwiftUI
 
-struct ViewItemsBook: View {
+struct ViewItemTopic: View {
     
     @Binding var isAllEdit: Bool
     @Binding var isEdit: Bool
-    @Binding var listSelect: [Books]
-    @Binding var books: [Books]
+    @Binding var listSelect: [Topics]
+    @Binding var topics: [Topics]
     @Binding var typeOreder: OrederItems
     @State private var searchText: String = ""
 
-    var searchBooks: [Books] {
+    var searchBooks: [Topics] {
         if case .title = typeOreder {
             if searchText.isEmpty {
-                return books.sorted {
+                return topics.sorted {
                     $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
                 }
             }
-            return books.filter { topic in
+            return topics.filter { topic in
                 topic.title.contains(searchText)
             }.sorted {
                 $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
             }
         } else if case .favorite = typeOreder {
             if searchText.isEmpty {
-                return books.sorted {
+                return topics.sorted {
                     if $0.isFavorite == $1.isFavorite {
                         return $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
                         }
                     return $0.isFavorite
                 }
             }
-            return books.filter { topic in
+            return topics.filter { topic in
                 topic.title.contains(searchText)
             }.sorted {
                 if $0.isFavorite == $1.isFavorite {
@@ -47,11 +47,11 @@ struct ViewItemsBook: View {
             }
         } else {
             if searchText.isEmpty {
-                return books.sorted {
+                return topics.sorted {
                     $0.lastTimeAsked < $1.lastTimeAsked
                 }
             }
-            return books.filter { topic in
+            return topics.filter { topic in
                 topic.title.contains(searchText)
             }.sorted {
                 $0.lastTimeAsked < $1.lastTimeAsked
@@ -62,11 +62,11 @@ struct ViewItemsBook: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 200, maximum: 450))]) {
-                ForEach(searchBooks, id: \.id) { book in
+                ForEach(searchBooks, id: \.id) { topic in
                     HStack {
                         if isEdit {
                             ZStack {
-                                if listSelect.contains(where: { $0.id == book.id }) {
+                                if listSelect.contains(where: { $0.id == topic.id }) {
                                     Image(systemName: "circle.fill")
                                         .frame(height: 24)
                                         .tint(Color.blue)
@@ -79,22 +79,21 @@ struct ViewItemsBook: View {
                             }
                             .padding(5)
                         }
-                        NavigationLink(destination: MainViewTopics(book: book)) {
-                            ItemView(book: book)
+                        NavigationLink(destination: MainViewAnswers(topic: topic)) {
+                            ItemView(topic: topic)
                         }
                         .disabled(isEdit)
                         .onTapGesture {
                             if isEdit {
-                                if listSelect.contains(where: { $0.id == book.id }) {
-                                    listSelect.removeAll { $0.id == book.id }
+                                if listSelect.contains(where: { $0.id == topic.id }) {
+                                    listSelect.removeAll { $0.id == topic.id }
                                 } else {
-                                    listSelect.append(book)
+                                    listSelect.append(topic)
                                 }
                             }
                         }
                         
                     }
-                    
                     .padding(.horizontal, 20)
                     .visualEffect { content, proxy in
                         let frame = proxy.frame(in: .scrollView(axis: .vertical))
@@ -116,7 +115,7 @@ struct ViewItemsBook: View {
     
     struct ItemView: View {
         @State var isEditItem = false
-        var book: Books
+        var topic: Topics
 
         var body: some View {
             ZStack {
@@ -125,13 +124,13 @@ struct ViewItemsBook: View {
                 HStack {
                     VStack {
                         HStack {
-                            Text("\(book.title)")
+                            Text("\(topic.title)")
                                 .foregroundStyle(Color.primary)
                                 .font(.title)
                             Spacer()
                         }
                         .padding(.horizontal, 20)
-                        if let note = book.note {
+                        if let note = topic.note {
                             HStack {
                                 Text("\(note)")
                                     .font(.footnote)
@@ -142,7 +141,7 @@ struct ViewItemsBook: View {
                     }
                     Spacer()
                     VStack {
-                        if book.isFavorite {
+                        if topic.isFavorite {
                             Image(systemName: "star.fill")
                                 .foregroundStyle(Color.yellow)
                                 .padding(20)
@@ -153,7 +152,7 @@ struct ViewItemsBook: View {
             .contextMenu {
                 Button {
                     withAnimation {
-                        book.isFavorite.toggle()
+                        topic.isFavorite.toggle()
                     }
                 } label: {
                     Text("Favorite")
@@ -167,7 +166,7 @@ struct ViewItemsBook: View {
                 }
             }
             .sheet(isPresented: $isEditItem) {
-                ViewCreateBook(isPresent: $isEditItem, book: book)
+                ViewCreateTopic(isPresent: $isEditItem, topic: topic)
             }
             .frame(height: 100)
         }
